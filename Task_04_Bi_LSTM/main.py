@@ -3,7 +3,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
-import torch.nn.functional as F
+from Task_04_Bi_LSTM import Trainer
+from Task_04_Bi_LSTM.Bi_LSTM import BiLSTM
 
 dtype = torch.FloatTensor
 
@@ -34,43 +35,11 @@ def make_batch(sentence):
     return Variable(torch.Tensor(input_batch)), Variable(torch.LongTensor(target_batch))
 
 
-class BiLSTM(nn.Module):
-    def __init__(self):
-        super(BiLSTM, self).__init__()
-
-        self.lstm = nn.LSTM(input_size=vocaSize, hidden_size=n_hidden, bidirectional=True)
-        self.W = nn.Parameter(torch.rand(n_hidden * 2, vocaSize).type(dtype))
-        self.b = nn.Parameter(torch.rand(vocaSize).type(dtype))
-
-    def forward(self, X):
-        input = X.transpose(0, 1)
-
-        hidden_state = Variable(torch.zeros(1*2, len(X), n_hidden))
-        cell_state = Variable(torch.zeros(1*2, len(X), n_hidden))
-
-        output, (_, _) = self.lstm(input, (hidden_state,  cell_state))
-        output = output[-1]
-        model = torch.mm(output, self.W) + self.b
-
-        return model
-
 input_batch, target_batch = make_batch(sentence)
 
-model = BiLSTM()
+model = BiLSTM(vocaSize, n_hidden, dtype)
 
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.RMSprop(model.parameters(), lr=0.001)
-
-
-for epoch in range(10000):
-    optimizer.zero_grad()
-    output = model(input_batch)
-    loss = criterion(output, target_batch)
-    if (epoch + 1) % 1000 == 0:
-        print('Epoch:', '%04d' % (epoch + 1), 'cost =', '{:.6f}'.format(loss))
-
-    loss.backward()
-    optimizer.step()
+Trainer.train(model,input_batch, target_batch)
 
 predict = model(input_batch).data.max(1, keepdim=True)[1]
 print(sentence)
