@@ -1,8 +1,8 @@
 import torch
 from torch.autograd import Variable
-from NNLM_01.NNLM import NNLM_Net
+from Task_01_NNLM.NNLM import NNLM_Net
 import Utills
-from NNLM_01 import Trainer
+from Task_01_NNLM import Trainer
 
 max_Epoch = 10000
 
