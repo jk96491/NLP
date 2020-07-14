@@ -1,10 +1,7 @@
-import numpy as np
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.autograd import Variable
 from Task_04_Bi_LSTM import Trainer
 from Task_04_Bi_LSTM.Bi_LSTM import BiLSTM
+import Utills
 
 dtype = torch.FloatTensor
 
@@ -21,21 +18,7 @@ vocaSize = len(word_dict)
 max_len = len(sentence.split())
 n_hidden = 5
 
-def make_batch(sentence):
-    input_batch, target_batch = [], []
-
-    words = sentence.split()
-    for i, word in enumerate(words[:-1]):
-        input = [word_dict[n] for n in words[:(i + 1)]]
-        input = input + [0] * (max_len - len(input))
-        target =word_dict[words[i + 1]]
-        input_batch.append(np.eye(vocaSize)[input])
-        target_batch.append(target)
-
-    return Variable(torch.Tensor(input_batch)), Variable(torch.LongTensor(target_batch))
-
-
-input_batch, target_batch = make_batch(sentence)
+input_batch, target_batch = Utills.make_batchLongSentence(sentence, word_dict, max_len, vocaSize)
 
 model = BiLSTM(vocaSize, n_hidden, dtype)
 

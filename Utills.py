@@ -80,3 +80,18 @@ def make_batchForSeqData(seq_data, word_dict, vocaCount):
 
     return Variable(torch.Tensor(input_batch)), Variable(torch.LongTensor(target_batch))
 
+
+def make_batchLongSentence(sentence, word_dict, max_len, vocaSize):
+    input_batch, target_batch = [], []
+
+    words = sentence.split()
+    for i, word in enumerate(words[:-1]):
+        input = [word_dict[n] for n in words[:(i + 1)]]
+        input = input + [0] * (max_len - len(input))
+        target = word_dict[words[i + 1]]
+        input_batch.append(np.eye(vocaSize)[input])
+        target_batch.append(target)
+
+    return Variable(torch.Tensor(input_batch)), Variable(torch.LongTensor(target_batch))
+
+
