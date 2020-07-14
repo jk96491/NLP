@@ -1,4 +1,6 @@
 import numpy as np
+from torch.autograd import Variable
+import torch
 
 def SetSentences(sentences):
     word_list = " ".join(sentences).split()
@@ -8,6 +10,7 @@ def SetSentences(sentences):
     vocaCount = len(word_dict)
 
     return word_dict, number_dict, vocaCount
+
 
 def SetSentencesForWord(sentences):
     word_sequence = " ".join(sentences).split()
@@ -56,4 +59,24 @@ def SetSkipGram(word_sequence, word_dict):
             skip_grams.append([target, w])
 
     return skip_grams
+
+
+def set_SeqData():
+    char_arr = [c for c in 'abcdefghijklmnopqrstuvwxyz']
+    word_dict = {n: i for i, n in enumerate(char_arr)}
+    number_dict = {i: w for i, w in enumerate(char_arr)}
+    vocaCount = len(word_dict)
+
+    return number_dict, vocaCount, word_dict
+
+def make_batchForSeqData(seq_data, word_dict, vocaCount):
+    input_batch, target_batch = [], []
+
+    for seq in seq_data:
+        input = [word_dict[n] for n in seq[:-1]]
+        target = word_dict[seq[-1]]
+        input_batch.append(np.eye(vocaCount)[input])
+        target_batch.append(target)
+
+    return Variable(torch.Tensor(input_batch)), Variable(torch.LongTensor(target_batch))
 
